@@ -1,74 +1,27 @@
 # PROJECT IDEA
 
-https://www.ctnet.co.uk/my-journey-to-an-ai-powered-research-assistant-in-obsidian-pt1/
+I wanted to create a tool that helps me save and store information from websites (e.g. wikipages, fandom pages, etc) for worldbuilding research.
+To keep track of my research, I wanted to be able to ask the tool if certain topics have been researched before.
+I also wanted to be able to ask the tool of the topics that I have researched before, because I know I will forget them.
 
-https://www.youtube.com/watch?v=j1QcPSLj7u0
-
-https://www.youtube.com/watch?v=TY_LiTrad3c
-
-https://www.youtube.com/watch?v=FDBnyJu_Ndg
-
-https://www.youtube.com/watch?v=DvURiNIvhxA
-
-First docker-compose up:
-PostgreSQL container initializes.
-wbresearch_db is created automatically (because of POSTGRES_DB).
-pgvector is preinstalled (from the image).
-FastAPI connects to db:5432 using credentials from .env.
-Later docker-compose up / docker-compose restart:
-Database persists thanks to the pg_data volume.
-You don’t lose your data, and tables stay intact.
-To rebuild FastAPI container after code changes:
-docker-compose up --build
-
-docker system df
-docker container prune -f
-docker image prune -f
-docker builder prune -f
-
-- Crawl4AI ingestion
-- LLM report generation
-- Markdown storage
-- Vector search (RAG)
-
-                ┌────────────────────┐
-                │      Frontend      │
-                │  (Web / Desktop)   │
-                └─────────┬──────────┘
-                          │
-                ┌─────────▼──────────┐
-                │    API Gateway     │
-                └─────────┬──────────┘
-          ┌───────────────┼────────────────┐
-          │               │                │
-┌─────────▼────────┐ ┌────▼─────────┐ ┌────▼──────────┐
-│  Ingestion Svc   │ │  RAG Service │ │  Auth Service │
-│ (Crawl + Report) │ │  (Chatbot)   │ │ (Optional)    │
-└─────────┬────────┘ └────┬─────────┘ └───────────────┘
-          │               │
-          │               │
- ┌────────▼────────┐ ┌────▼──────────┐
- │ PostgreSQL      │ │ Vector DB     │
- │ (Markdown +     │ │ (Embeddings)  │
- │ Metadata)       │ │ PGVector etc  │
- └─────────────────┘ └───────────────┘
-
-User double-clicks ResearchEngine.exe
-            ↓
-Launcher starts FastAPI backend (localhost)
-            ↓
+# Flow
+User double-clicks ResearchEngine.exe (TBD)
+        ↓
+Launcher starts FastAPI backend (docker)
+        ↓
 Opens browser automatically
-            ↓
+        ↓
 Frontend (local web UI)
-            ↓
+        ↓
 Backend API
-            ↓
-Database (local)
-            ↓
-Vector Store (local)
+        ↓
+Database (docker)
+        ↓
+Vector Store (docker)
 
 # Architecture
-ResearchEngine/
+```
+WBResearchHelper/
 │
 ├── launcher.py                 # EXE entrypoint, starts everything automatically
 ├── backend/
@@ -117,11 +70,30 @@ ResearchEngine/
 ├── docker-compose.yml              # easier to run pgvector in docker container than manually installing
 ├── requirements.txt
 └── README.md
+```
 
 # Setup
+in backend:
 py -3.12 -m venv wbrh_b_venv
 powershell: wbrh_b_venv\Scripts\Activate.ps1
-pip install fastapi uvicorn sqlalchemy aiosqlite chromadb requests openai pyinstaller aiohttp crawl4ai sentence_transformers
+pip install -r requirements.txt
+
+First docker-compose up:
+PostgreSQL container initializes.
+wbresearch_db is created automatically (because of POSTGRES_DB).
+pgvector is preinstalled (from the image).
+FastAPI connects to db:5432 using credentials from .env.
+Later docker-compose up / docker-compose restart:
+Database persists thanks to the pg_data volume.
+Data is not lost, tables stay intact.
+To rebuild FastAPI container after code changes:
+docker-compose up --build
+
+docker system df
+docker compose down
+docker container prune -a
+docker image prune -a
+docker builder prune -a
 
 ## Ingestion Pipeline
 1. crawl URL, output md
@@ -252,3 +224,15 @@ Worker processes crawl + LLM + embeddings
 Store in DB
         ↓
 Notify user
+
+# References
+
+https://www.ctnet.co.uk/my-journey-to-an-ai-powered-research-assistant-in-obsidian-pt1/
+
+https://www.youtube.com/watch?v=j1QcPSLj7u0
+
+https://www.youtube.com/watch?v=TY_LiTrad3c
+
+https://www.youtube.com/watch?v=FDBnyJu_Ndg
+
+https://www.youtube.com/watch?v=DvURiNIvhxA
