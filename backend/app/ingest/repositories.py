@@ -1,6 +1,8 @@
 # backend/app/ingest/repositories.py
 
 # insert md and embeddings to postgreSQL
+# retrieve documents
+# search similar chunks
 
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +14,7 @@ from pgvector.sqlalchemy import Vector
 
 from sqlalchemy import text
 from sqlalchemy import select
+from sqlalchemy.orm import aliased
 
 async def save_md(session: AsyncSession, url: str, md_content: str, title: str = None) -> int:
     """
@@ -86,23 +89,31 @@ async def get_chunks_by_document(session: AsyncSession, document_id: int) -> Lis
 async def query_similar_chunks(
     session,
     query_embedding: list[float],
-    top_k: int = 5
+    top_k: int = 5,
+    document_id = None,
+    title_contains = None,
 ):
     """
-    Perform cosine similarity search using pgvector comparator.
+    Perform cosine similarity search using pgvector comparator, with optional document filtering.
     """
 
-    distance = DocumentChunk.embedding.cosine_distance(query_embedding)
-
-    stmt = (
-        select(
-            DocumentChunk,
-            (1 - distance).label("similarity")
-        )
-        .order_by(distance)
-        .limit(top_k)
+    stmt = select(
+        DocumentChunk,
+        DocumentChunk.embedding.cosine_distance(query_embedding).label("similarity")
     )
 
-    result = await session.execute(stmt)
+    if title_contains:
+        stmt = stmt.join(WBResearchDocument, WBResearchDocument.id == DocumentChunk.document_id)
+    
+    # apply filters conditionally
+    if document_id is not None:
+        stmt = stmt.where(DocumentChunk.document_id == document_id)
+    
+    if title_contains:
+        stmt = stmt.where(WBResearchDocument.title.ilike(f"%{title_contains}%"))
 
-    return result.all()
+    # Order by similarity (ascending distance)
+    stmt = stmt.order_by("similarity").limit(top_k)
+
+    rows = await session.execute(stmt)
+    return rows.all()

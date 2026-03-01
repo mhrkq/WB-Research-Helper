@@ -38,9 +38,8 @@ WBResearchHelper/
 │       │   ├── pipeline.py         # chain services
 │       │   ├── repositories.py     # insert md and embeddings to postgreSQL
 │       │   └── schemas.py
-│       ├── rag/
-│       │   ├── retriever.py        # Vector search
-│       │   └── chat.py             # RAG chat logic
+│       ├── llm/
+│       │   └── chat_service.py     # RAG chat logic
 │       ├── db/
 │       │   ├── database.py         # SQLite connection, async
 │       │   └── models.py           # SQLAlchemy models (documents, metadata)
@@ -51,8 +50,10 @@ WBResearchHelper/
 │       ├── schemas/
 │       │   └── ingest.py
 │       └── routes/
+│           ├── documents.py
 │           ├── health.py
-│           └── injest.py
+│           ├── ingest.py
+│           └── querychat.py
 │
 ├── frontend/
 │   ├── index.html                  # dashboard / URL submission
@@ -237,6 +238,13 @@ Notify user
 # Questions
 - 500 character chunks too small size?
 - RAG retrieval top 5 too small size?
+- improvements to RAG? 
+- document metadata filtering? 
+- hybrid search (BM25 + vector)? 
+- reranker model?
+- conversation memory?
+- knowledge graph & structured knowledge queries?
+- streaming response (UX)?
 
 
 # References

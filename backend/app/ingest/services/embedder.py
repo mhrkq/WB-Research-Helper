@@ -1,4 +1,4 @@
-# embedder.py
+# backend/app/ingest/services/embedder.py
 
 from typing import List, Dict
 import numpy as np
