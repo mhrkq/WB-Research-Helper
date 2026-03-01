@@ -87,13 +87,17 @@ Later docker-compose up / docker-compose restart:
 Database persists thanks to the pg_data volume.
 Data is not lost, tables stay intact.
 To rebuild FastAPI container after code changes:
+```
 docker-compose up --build
+```
 
+```
 docker system df
 docker compose down
 docker container prune -a
 docker image prune -a
 docker builder prune -a
+```
 
 ## Ingestion Pipeline
 1. crawl URL, output md
@@ -112,6 +116,7 @@ extract:
 store in PostgreSQL
 
 wb_research_documents
+```
 ------------------+-----------------------------+-----------+----------+---------------------------------------------------
       Column      |            Type             | Collation | Nullable |                      Default
 ------------------+-----------------------------+-----------+----------+---------------------------------------------------
@@ -125,8 +130,10 @@ Indexes:
     "wb_research_documents_url_key" UNIQUE CONSTRAINT, btree (url)
 Referenced by:
     TABLE "document_chunks" CONSTRAINT "document_chunks_document_id_fkey" FOREIGN KEY (document_id) REFERENCES wb_research_documents(id)
+```
 
 document_chunks
+```
 -------------+-------------+-----------+----------+---------------------------------------------
    Column    |    Type     | Collation | Nullable |                   Default
 -------------+-------------+-----------+----------+---------------------------------------------
@@ -135,6 +142,7 @@ document_chunks
  chunk_index | integer     |           |          |
  chunk_text  | text        |           |          |
  embedding   | vector(384) |           |          |
+```
 Indexes:
     "document_chunks_pkey" PRIMARY KEY, btree (id)
     "document_chunks_embedding_idx" hnsw (embedding vector_cosine_ops)
@@ -198,7 +206,7 @@ FastAPI
 PostgreSQL
 PGVector
 maybe Redis
-
+```
  Layer       | Technology                 
  ----------- | -------------------------- 
  API         | FastAPI                    
@@ -210,6 +218,7 @@ maybe Redis
  Cache       | Redis                      
  Frontend    | React          
  Storage     | S3 (optional for raw HTML) 
+```
 
 # Event-Driven Version (More Scalable)
 instead of synchronous ingestion
@@ -224,6 +233,11 @@ Worker processes crawl + LLM + embeddings
 Store in DB
         ↓
 Notify user
+
+# Questions
+- 500 character chunks too small size?
+- RAG retrieval top 5 too small size?
+
 
 # References
 

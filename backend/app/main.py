@@ -13,6 +13,8 @@ from contextlib import asynccontextmanager
 from app.utils.logger import setup_logger
 from app.routes.health import router as health_router
 from app.routes.ingest import router as ingest_router
+from app.routes.documents import router as documents_router
+from app.routes.querychat import router as querychat_router
 from app.db.database import init_db, engine
 from app.config import get_settings
 
@@ -58,5 +60,7 @@ app.add_middleware(
 # routes
 app.include_router(health_router, prefix="/api")
 app.include_router(ingest_router, prefix="/api")
+app.include_router(documents_router, prefix="/api")
+app.include_router(querychat_router, prefix="/api")
 
 logger.info("Application routes configured")

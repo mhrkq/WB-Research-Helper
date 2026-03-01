@@ -1,4 +1,4 @@
-# repositories.py
+# backend/app/ingest/repositories.py
 
 # insert md and embeddings to postgreSQL
 
@@ -9,6 +9,9 @@ from sqlalchemy.exc import IntegrityError
 from ..db.models import WBResearchDocument, DocumentChunk
 from ..db.database import get_db
 from pgvector.sqlalchemy import Vector
+
+from sqlalchemy import text
+from sqlalchemy import select
 
 async def save_md(session: AsyncSession, url: str, md_content: str, title: str = None) -> int:
     """
@@ -79,3 +82,27 @@ async def get_chunks_by_document(session: AsyncSession, document_id: int) -> Lis
         select(DocumentChunk).where(DocumentChunk.document_id == document_id).order_by(DocumentChunk.chunk_index)
     )
     return result.scalars().all()
+
+async def query_similar_chunks(
+    session,
+    query_embedding: list[float],
+    top_k: int = 5
+):
+    """
+    Perform cosine similarity search using pgvector comparator.
+    """
+
+    distance = DocumentChunk.embedding.cosine_distance(query_embedding)
+
+    stmt = (
+        select(
+            DocumentChunk,
+            (1 - distance).label("similarity")
+        )
+        .order_by(distance)
+        .limit(top_k)
+    )
+
+    result = await session.execute(stmt)
+
+    return result.all()
