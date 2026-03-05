@@ -1,17 +1,38 @@
 # backend/routes/querychat.py
 
+# just like how backend/app/routes/ingest.py only run 1 func (run_ingestion from backend.app.ingest.ingest_pipeline),
+# querychat.py should only run 1 func (run query from backend.app.query.query_pipeline)
+# query_pipeline will
+# - call query_similar_chunks
+# - convert rows into structured dicts
+# - call reranker_service
+# - return final top_k chunks
+
+# API route
+#    ↓
+# query_pipeline
+#    ↓
+# embedding_service
+#    ↓
+# retrieval_service
+#    ↓
+# rerank_service
+#    ↓
+# answer_service
+#    ↓
+# response
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 
-from app.db.database import get_db
-from app.ingest.repositories import query_similar_chunks
-from app.ingest.services.embedder import embed_chunks
-
-from app.llm.chat_service import generate_answer
+from ..db.database import get_db
+from ..query.query_pipeline import run_query
+from ..utils.logger import setup_logger
 
 router = APIRouter()
+logger = setup_logger(__name__)
 
 
 class QueryChatRequest(BaseModel):
@@ -25,7 +46,8 @@ class QueryResult(BaseModel):
     document_id: int
     chunk_index: int
     chunk_text: str
-    similarity: float
+    vector_similarity: float
+    rerank_score: float
 
 
 class QueryChatResponse(BaseModel):
@@ -39,48 +61,24 @@ async def query_chat(
     session: AsyncSession = Depends(get_db),
 ):
     """
-    Full RAG Endpoint:
-    1. Embed user query
-    2. Search vector DB
-    3. Send top chunks to LLM
-    4. Return llm answer + top chunks
+    Full RAG endpoint.
+    Delegates all logic to query_pipeline.run_query()
     """
-
-    if not request.query.strip():
-        raise HTTPException(status_code=400, detail="Query cannot be empty")
-
-    query_embedding = embed_chunks(
-        [{"chunk_text": request.query}]
-    )[0]
-
-    # retrieve similar chunks
-    rows = await query_similar_chunks(
-        session,
-        query_embedding,
-        request.top_k,
-        document_id=request.document_id,
-        title_contains=request.title_contains,
-    )
-
-    if not rows:
-        raise HTTPException(status_code=404, detail="No relevant documents found")
-
-    # extract chunk texts for LLM
-    chunk_texts = [row[0].chunk_text for row in rows]
-
-    answer = await generate_answer(request.query, chunk_texts)
-
-    results = [
-        QueryResult(
-            document_id=row[0].document_id,
-            chunk_index=row[0].chunk_index,
-            chunk_text=row[0].chunk_text,
-            similarity=float(row[1]),
+    try:
+        result = await run_query(
+            session=session,
+            query=request.query,
+            top_k=request.top_k,
+            document_id=request.document_id,
+            title_contains=request.title_contains,
         )
-        for row in rows
-    ]
 
-    return QueryChatResponse(
-        answer=answer,
-        results=results
-    )
+        logger.info(f"Query executed successfully: {request.query}")
+        return result
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    except Exception as e:
+        logger.error(f"Query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Query failed: {str(e)}")

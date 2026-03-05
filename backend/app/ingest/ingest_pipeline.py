@@ -6,10 +6,10 @@
 # 4. embed chunks
 # 5. store embeddings in db
 
-from .services.crawler import crawl_url
-from .services.chunker import create_list_of_chunks
-from .services.embedder import embed_chunks
-from .repositories import save_md, save_embeddings
+from .services.crawler_service import crawl_url
+from .services.chunker_service import create_list_of_chunks
+from .services.embedding_service import embed_chunks
+from .ingest_repositories import save_md, save_embeddings
 from ..db.database import AsyncSessionLocal
 
 async def run_ingestion(url: str):

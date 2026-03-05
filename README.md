@@ -23,28 +23,28 @@ Vector Store (docker)
 ```
 WBResearchHelper/
 │
-├── launcher.py                 # EXE entrypoint, starts everything automatically
+├── launcher.py                         # EXE entrypoint, starts everything automatically
 ├── backend/
 │   ├── docker-entrypoint.sh        
 │   ├── Dockerfile
-│   ├── requirements.txt            # for docker
+│   ├── requirements.txt                # for docker
 │   └── app
-│       ├── main.py                 # FastAPI app
+│       ├── main.py                     # FastAPI app
 │       ├── ingest/
 │       │   ├── services
-│       │   │   ├── crawler.py      # Crawl4AI integration
-│       │   │   ├── chunker.py      # Split markdown into chunks
-│       │   │   └── embedder.py     # Create embeddings for RAG
-│       │   ├── pipeline.py         # chain services
-│       │   ├── repositories.py     # insert md and embeddings to postgreSQL
+│       │   │   ├── crawler.py          # Crawl4AI integration
+│       │   │   ├── chunker.py          # Split markdown into chunks
+│       │   │   └── embedder.py         # Create embeddings for RAG
+│       │   ├── ingest_ pipeline.py     # chain services
+│       │   ├── ingest_repositories.py  # insert md and embeddings to postgreSQL
 │       │   └── schemas.py
 │       ├── llm/
-│       │   └── chat_service.py     # RAG chat logic
+│       │   └── chat_service.py         # RAG chat logic
 │       ├── db/
-│       │   ├── database.py         # SQLite connection, async
-│       │   └── models.py           # SQLAlchemy models (documents, metadata)
+│       │   ├── database.py             # SQLite connection, async
+│       │   └── models.py               # SQLAlchemy models (documents, metadata)
 │       ├── config/
-│       │   └── config.py           # backend settings and parameters
+│       │   └── config.py               # backend settings and parameters
 │       ├── utils/
 │       │   └── logger.py
 │       ├── schemas/
@@ -95,7 +95,7 @@ docker-compose up --build
 ```
 docker system df
 docker compose down
-docker container prune -a
+docker volume prune -a
 docker image prune -a
 docker builder prune -a
 ```
@@ -239,13 +239,61 @@ Notify user
 - 500 character chunks too small size?
 - RAG retrieval top 5 too small size?
 - improvements to RAG? 
-- document metadata filtering? 
+- document metadata filtering? - optional document filtering by doc id/title
 - hybrid search (BM25 + vector)? 
+
 - reranker model?
+dense embeddings retrieve semantically similar chunks, but not necessarily the most precise ones
+current embedding model (all-MiniLM-L6-v2) encodes query and chunks separately
+reranker takes (query, chunk) pairs 
+scores how relevant the chunk is to the query
+reorders retrieved results
+e.g. 
+instead of top_k = 5,
+top_k = 20 (vector search)
+rerank top 20
+send top 5 to llm
+higher precision and recall
+
+cross-encoder/ms-marco-MiniLM-L-6-v2
+Same ecosystem (sentence-transformers)
+small & fast (~120MB)
+Very easy to integrate
+Strong ranking quality
+Widely used in production RAG systems
+Works great with MiniLM embeddings (same family)
+
+BAAI/bge-reranker-base
+Slightly better ranking performance
+More modern model
+Strong multilingual capabilities
+
+Heavier (~400MB)
+Slower
+More memory usage
+Overkill for most research/document RAG setups
+
+querychat endpoint
+    ↓
+RetrievalService
+    ↓
+Vector search (top_k=20)
+    ↓
+RerankService
+    ↓
+Top 5 chunks
+    ↓
+LLMService (Gemini)
+    ↓
+Response
+
 - conversation memory?
 - knowledge graph & structured knowledge queries?
 - streaming response (UX)?
 
+- add youtube transcript crawler? crawl4ai
+- or [video context engine](https://www.reddit.com/r/LocalLLaMA/comments/1pbhbdy/project_videocontext_engine_a_fully_local/)
+- Model Context Protocol (MCP)?
 
 # References
 

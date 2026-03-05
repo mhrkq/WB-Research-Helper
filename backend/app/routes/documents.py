@@ -3,9 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
-from app.db.database import get_db
-from app.db.models import WBResearchDocument
-from app.ingest.repositories import get_document_by_id, get_chunks_by_document
+from ..db.database import get_db
+from ..db.models import WBResearchDocument
+# from backend.app.ingest.ingest_repositories import get_document_by_id, get_chunks_by_document
+from ..query.query_repositories import get_document_by_id, get_chunks_by_document
 
 router = APIRouter()
 
