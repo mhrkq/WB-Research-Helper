@@ -32,19 +32,28 @@ WBResearchHelper/
 │       ├── main.py                     # FastAPI app
 │       ├── ingest/
 │       │   ├── services
-│       │   │   ├── crawler.py          # Crawl4AI integration
-│       │   │   ├── chunker.py          # Split markdown into chunks
-│       │   │   └── embedder.py         # Create embeddings for RAG
-│       │   ├── ingest_ pipeline.py     # chain services
-│       │   ├── ingest_repositories.py  # insert md and embeddings to postgreSQL
+│       │   │   ├── crawler_service.py          # Crawl4AI integration
+│       │   │   ├── chunker_service.py          # split markdown into chunks
+│       │   │   └── embedding_service.py        # create embeddings of documents for RAG
+│       │   ├── ingest_ pipeline.py             # chain services
+│       │   ├── ingest_repositories.py          # insert md and embeddings to postgreSQL
 │       │   └── schemas.py
+│       ├── query/
+│       │   ├── services
+│       │   │   ├── answer_service.py           # uses chat_service in /llm
+│       │   │   ├── embedding_service.py        # create embeddings of query for RAG
+│       │   │   ├── rerank_service.py           # select top m chunks from n chunks after ranking based on similarity score
+│       │   │   └── retrieval_service.py        # query similar chunks from db
+│       │   ├── query_pipeline.py              # chain services
+│       │   ├── query_repositories.py           # insert md and embeddings to postgreSQL
+│       │   └── schemas.py                      # here?
 │       ├── llm/
-│       │   └── chat_service.py         # RAG chat logic
+│       │   └── chat_service.py                 # RAG chat logic
 │       ├── db/
-│       │   ├── database.py             # SQLite connection, async
-│       │   └── models.py               # SQLAlchemy models (documents, metadata)
+│       │   ├── database.py                     # SQLite connection, async
+│       │   └── models.py                       # SQLAlchemy models (documents, metadata)
 │       ├── config/
-│       │   └── config.py               # backend settings and parameters
+│       │   └── config.py                       # backend settings and parameters
 │       ├── utils/
 │       │   └── logger.py
 │       ├── schemas/
@@ -237,12 +246,14 @@ Notify user
 
 # Questions
 - 500 character chunks too small size?
-- RAG retrieval top 5 too small size?
-- improvements to RAG? 
-- document metadata filtering? - optional document filtering by doc id/title
-- hybrid search (BM25 + vector)? 
+  Best chunk size: 300 – 500 tokens
+  with overlap: 50 – 100 tokens
 
-- reranker model?
+- RAG retrieval top 5 too small size?
+
+- document metadata filtering? DONE - optional document filtering by doc id/title
+
+- reranker model? DONE
 dense embeddings retrieve semantically similar chunks, but not necessarily the most precise ones
 current embedding model (all-MiniLM-L6-v2) encodes query and chunks separately
 reranker takes (query, chunk) pairs 
@@ -283,10 +294,51 @@ RerankService
     ↓
 Top 5 chunks
     ↓
-LLMService (Gemini)
+LLMService
     ↓
 Response
 
+- improvements to RAG? 
+- hybrid search (BM25 + vector)?
+  Vector Search (semantic) + Keyword Search (BM25)
+  improves recall
+
+- query expansion?
+  break query down to multiple queries
+
+- context compression?
+  increases signal density
+
+- parent document retrieval 
+  instead of sending only a chunk, retrieve parent document or surrounding chunks
+
+- self-query retrieval
+  instead of manually specifying filters, llm extracts them from the query
+
+- clean up citation generation
+  e.g. 
+  answer: Skaven society is hierarchical and clan-based.
+  sources: 
+  [1] Skaven Lore - chunk 3
+  [2] Warhammer Bestiary - chunk 7
+
+- Multi-Step RAG (Agentic Retrieval)
+  if the answer needs multiple searches
+  e.g.
+  Compare skaven society with human empire politics
+  agent pipeline:
+  Search skaven
+  Search human empire
+  Compare
+  Answer
+
+- answer verification
+  after llm answers, run a second pass
+  prompt:
+  Is this answer supported by the provided context?
+  If not, correct it.
+  reduces hallucinations
+  
 - conversation memory?
 - knowledge graph & structured knowledge queries?
 - streaming response (UX)?

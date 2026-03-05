@@ -83,37 +83,3 @@ async def get_chunks_by_document(session: AsyncSession, document_id: int) -> Lis
         select(DocumentChunk).where(DocumentChunk.document_id == document_id).order_by(DocumentChunk.chunk_index)
     )
     return result.scalars().all()
-
-async def query_similar_chunks(
-    session,
-    query_embedding: list[float],
-    top_k: int = 5,
-    document_id = None,
-    title_contains = None,
-):
-    """
-    Perform cosine similarity search using pgvector comparator, with optional document filtering.
-    """
-
-    stmt = select(
-        DocumentChunk,
-        DocumentChunk.embedding.cosine_distance(query_embedding).label("similarity")
-    )
-
-    if title_contains:
-        stmt = stmt.join(WBResearchDocument, WBResearchDocument.id == DocumentChunk.document_id)
-    
-    # apply filters conditionally
-    if document_id is not None:
-        stmt = stmt.where(DocumentChunk.document_id == document_id)
-    
-    if title_contains:
-        stmt = stmt.where(WBResearchDocument.title.ilike(f"%{title_contains}%"))
-
-    # Order by similarity (ascending distance)
-    stmt = stmt.order_by("similarity").limit(top_k)
-
-    # List[Tuple[DocumentChunk, float]]
-    # a list of rows, each containing (DocumentChunk, cosine_distance_float)
-    rows = await session.execute(stmt)
-    return rows.all()

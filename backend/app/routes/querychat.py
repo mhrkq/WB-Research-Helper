@@ -23,47 +23,27 @@
 # response
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
 
 from ..db.database import get_db
 from ..query.query_pipeline import run_query
+from ..query.schemas import QueryRequest, QueryResponse
 from ..utils.logger import setup_logger
 
 router = APIRouter()
 logger = setup_logger(__name__)
 
 
-class QueryChatRequest(BaseModel):
-    query: str
-    top_k: int = 5
-    document_id: Optional[int] = None
-    title_contains: Optional[str] = None
-
-
-class QueryResult(BaseModel):
-    document_id: int
-    chunk_index: int
-    chunk_text: str
-    vector_similarity: float
-    rerank_score: float
-
-
-class QueryChatResponse(BaseModel):
-    answer: str
-    results: List[QueryResult]
-
-
-@router.post("/querychat", response_model=QueryChatResponse, tags=["QueryChat"])
+@router.post("/querychat", response_model=QueryResponse, tags=["QueryChat"])
 async def query_chat(
-    request: QueryChatRequest,
+    request: QueryRequest,
     session: AsyncSession = Depends(get_db),
 ):
     """
     Full RAG endpoint.
     Delegates all logic to query_pipeline.run_query()
     """
+
     try:
         result = await run_query(
             session=session,

@@ -5,6 +5,11 @@
 # call reranker_service
 # return final top_k chunks
 
+# 1. Embed query
+# 2. Retrieve candidates
+# 3. Rerank (e.g. 5/20)
+# 4. Generate answer
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
@@ -25,10 +30,8 @@ async def run_query(
     if not query.strip():
         raise ValueError("Query cannot be empty")
 
-    # 1 Embed query
     query_embedding = embed_query(query)
 
-    # 2 Retrieve candidates
     candidates = await retrieve_chunks(
         session=session,
         query_embedding=query_embedding,
@@ -39,11 +42,9 @@ async def run_query(
 
     if not candidates:
         raise ValueError("No relevant documents found")
-
-    # 3 Rerank
+    
     reranked = rerank_documents(query, candidates, top_k)
 
-    # 4 Generate answer
     chunk_texts = [doc["content"] for doc in reranked]
     answer = await generate_rag_answer(query, chunk_texts)
 
@@ -52,6 +53,7 @@ async def run_query(
         "results": [
             {
                 "document_id": doc["metadata"]["document_id"],
+                "document_title": doc["title"], 
                 "chunk_index": doc["metadata"]["chunk_index"],
                 "chunk_text": doc["content"],
                 "vector_similarity": doc["metadata"]["similarity"],

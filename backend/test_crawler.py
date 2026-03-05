@@ -1,7 +1,7 @@
 # NOT IN USE
 
 import asyncio
-from app.ingest.services.crawler import crawl_url
+from app.ingest.services.crawler_service import crawl_url
 
 async def test_crawl():
     md, title = await crawl_url("https://warhammerfantasy.fandom.com/wiki/Skaven")
