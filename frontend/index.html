@@ -1,1 +1,37 @@
 <!-- Dashboard / URL submission -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WBResearchHelper</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<h1>WBResearchHelper</h1>
+
+<h2>Ingest URL</h2>
+
+<input id="urlInput" type="text" placeholder="Enter URL">
+<button onclick="ingestURL()">Ingest</button>
+
+<p id="ingestStatus"></p>
+
+<hr>
+
+<h2>Documents</h2>
+
+<button onclick="loadDocuments()">Refresh</button>
+
+<ul id="documentList"></ul>
+
+<br>
+<a href="chat.html">Go to Chat</a>
+
+<script src="js/api.js"></script>
+<script src="js/ingest.js"></script>
+<script src="js/documents.js"></script>
+
+</body>
+</html>

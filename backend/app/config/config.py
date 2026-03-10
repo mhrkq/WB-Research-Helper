@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     DATABASE_URL: str = ""
     TEST_DATABASE_URL: Optional[str] = "sqlite+aiosqlite:///./test_app.db"
-    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000", "http://localhost:8000", "http://localhost:5500", "http://127.0.0.1:5500"]
     API_PREFIX: str = "/api"
 
     # Database settings
@@ -42,6 +42,20 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+    
+    @property
+    def LOCALHOST_CORS_ORIGINS(self) -> List[str]:
+        """
+        Returns a list of localhost origins (http + https) for dev environment,
+        including IPv4, IPv6, and common frontend ports.
+        """
+        ports = [5173, 3000, 5500, 8000]
+        origins = []
+        for port in ports:
+            origins.append(f"http://localhost:{port}")
+            origins.append(f"http://127.0.0.1:{port}")
+            origins.append(f"http://[::1]:{port}")
+        return origins
 
 
 @lru_cache()

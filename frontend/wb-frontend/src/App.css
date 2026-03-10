@@ -1,0 +1,178 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.document-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.document-search {
+  width: 60%;
+  padding: 0.5rem;
+  margin-right: 0rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.refresh-button {
+  width: 120px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.refresh-button:hover {
+  background-color: #1565c0;
+}
+
+/* Document list */
+.document-list {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.document-list li {
+  margin-bottom: 0.5rem;
+}
+
+/* Container for ingest */
+.ingest-container {
+  margin-bottom: 2rem;
+}
+
+/* Input field */
+.ingest-input {
+  width: 60%;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Ingest button */
+.ingest-button {
+  width: 120px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.ingest-button:hover {
+  background-color: #1565c0;
+}
+
+/* Status message */
+.ingest-status {
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.ingest-status.success {
+  color: green;
+}
+
+.ingest-status.error {
+  color: red;
+}
+
+/* Chat container (messages area) */
+.chat-window {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  height: 300px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+/* Each message inside the chat */
+.chat-message {
+  margin-bottom: 0.5rem;
+}
+
+/* Chat input and send button container */
+.chat-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* spacing between input and button */
+}
+
+/* Chat input field */
+.chat-input {
+  width: 80%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Chat send button */
+.chat-send-button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.chat-send-button:hover {
+  background-color: #1565c0;
+}

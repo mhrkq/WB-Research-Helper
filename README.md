@@ -67,8 +67,13 @@ WBResearchHelper/
 ├── frontend/
 │   ├── index.html                  # dashboard / URL submission
 │   ├── chat.html                   # chat interface
+│   │
 │   ├── js/
-│   │   └── main.js                 # Handle API calls, DOM updates
+│   │   ├── api.js                  # API wrapper
+│   │   ├── injest.js
+│   │   ├── documents.js
+│   │   └── querychat.js
+│   │
 │   └── css/
 │       └── styles.css
 │
@@ -244,6 +249,19 @@ Store in DB
         ↓
 Notify user
 
+# Frontend
+cd frontend
+npm create vite@latest wb-frontend -- --template react
+cd wb-frontend
+npm install
+npm install axios
+npm install react-router-dom
+npm install react-markdown remark-gfm
+
+# Things to fix
+- if ingested url has no title (e.g. pdfs found online), front has no title to display
+- rerank model returning top 5 might be too small (e.g. how many stages in a whalefall - 4 but model answers 2 or 3)
+
 # Questions
 - 500 character chunks too small size?
   Best chunk size: 300 – 500 tokens
@@ -252,6 +270,7 @@ Notify user
 - RAG retrieval top 5 too small size?
 
 - document metadata filtering? DONE - optional document filtering by doc id/title
+  but more can be done, e.g. more metadata fields (source, author, date, topic, tags)
 
 - reranker model? DONE
 dense embeddings retrieve semantically similar chunks, but not necessarily the most precise ones
@@ -299,6 +318,10 @@ LLMService
 Response
 
 - improvements to RAG? 
+1. Hybrid Search
+2. Query Rewriting
+3. Multi-Query Retrieval
+
 - hybrid search (BM25 + vector)?
   Vector Search (semantic) + Keyword Search (BM25)
   improves recall
@@ -339,6 +362,7 @@ Response
   If not, correct it.
   reduces hallucinations
   
+- query rewriter?
 - conversation memory?
 - knowledge graph & structured knowledge queries?
 - streaming response (UX)?

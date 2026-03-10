@@ -49,18 +49,23 @@ app = FastAPI(
 )
 
 # CORS
+if settings.ENVIRONMENT == "development":
+    cors_origins = settings.LOCALHOST_CORS_ORIGINS
+else:
+    cors_origins = settings.CORS_ORIGINS  # production-specific list
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # routes
-app.include_router(health_router, prefix="/api")
-app.include_router(ingest_router, prefix="/api")
-app.include_router(documents_router, prefix="/api")
-app.include_router(querychat_router, prefix="/api")
+app.include_router(health_router, prefix=settings.API_PREFIX)
+app.include_router(ingest_router, prefix=settings.API_PREFIX)
+app.include_router(documents_router, prefix=settings.API_PREFIX)
+app.include_router(querychat_router, prefix=settings.API_PREFIX)
 
 logger.info("Application routes configured")
