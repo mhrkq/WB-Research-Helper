@@ -27,8 +27,8 @@ export default function QueryChat() {
       <div className="chat-window">
         {responses.map((r, idx) => (
           <div key={idx} className="chat-message">
-            <strong>You:</strong> {r.query} <br />
-            <strong>Chatbot:</strong> {r.answer}
+            <span className="chat-label-user">You:</span> {r.query} <br />
+            <span className="chat-label-bot">Chatbot:</span> {r.answer}
           </div>
         ))}
         <div ref={chatEndRef} />
