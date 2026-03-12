@@ -21,6 +21,20 @@ The system extracts content from URLs, stores it in a database, creates vector e
 
 ---
 
+# Dashboard
+
+![WB Research Helper Dashboard](images/wbresearchhelper_dashboard.png)
+
+# Document Page
+
+![WB Research Helper Document Page](images/wbresearchhelper_doc_pg.png)
+
+# Chatbot
+
+![WB Research Helper Chatbot](images/wbresearchhelper_chatbot.png)
+
+---
+
 # Application Flow
 
 ```
